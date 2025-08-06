@@ -10,6 +10,13 @@ struct ThumbnailData: Codable {
     var hasImage: Bool {
         imageData != nil
     }
+    
+    static var defaultThumbnailData = ThumbnailData(
+        userName: "Brettner Oliver",
+        fontName: FontTypes.Rounded,
+        backgroundColor: CodableColor(uiColor: UIColor(red: 0, green: 0, blue: 0, alpha: 1)),
+        imageData: nil
+    )
 }
 
 class Thumbnail: Persistent {
@@ -20,8 +27,12 @@ class Thumbnail: Persistent {
         self.codableData = data
     }
     
-    func updateData(thumbnailData: ThumbnailData) throws {
+    func updateData(thumbnailData: ThumbnailData) {
         self.codableData = thumbnailData
-        try save()
+        do {
+            try save()
+        } catch {
+            print("Saving Failed")
+        }
     }
 }

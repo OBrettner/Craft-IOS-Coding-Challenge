@@ -2,10 +2,14 @@ import Foundation
 import UIKit
 
 struct CodableImage: Codable {
-    let image: UIImage
+    let image: UIImage?
     
     enum CodingKeys: String, CodingKey {
         case image
+    }
+    
+    init(image: UIImage) {
+        self.image = image
     }
     
     init(from decoder: Decoder) throws {
@@ -20,7 +24,10 @@ struct CodableImage: Codable {
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        guard let data = image.pngData() else {
+        guard let resolvedImage = image else {
+            throw PersistencyError.encodingFailed
+        }
+        guard let data = resolvedImage.pngData() else {
             throw PersistencyError.encodingFailed
         }
         
