@@ -22,4 +22,23 @@ class Animations {
             }
         })
     }
+    
+    public static func fadeIn(view: UIView) {
+        view.isHidden = false
+        view.alpha = 0.0
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            view.alpha = 1.0
+        }, completion: nil)
+    }
+    
+    public static func fadeOut(view: UIView) {
+        UIView.animate(withDuration: 0.2, animations: {
+            view.alpha = 0.0
+        }, completion: { finished in
+            if finished {
+                view.isHidden = true
+            }
+        })
+    }
 }

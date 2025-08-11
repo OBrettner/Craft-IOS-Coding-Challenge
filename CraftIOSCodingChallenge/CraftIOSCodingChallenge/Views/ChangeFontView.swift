@@ -1,101 +1,92 @@
 import UIKit
 
 protocol ChangeFontViewDelegate: AnyObject {
-    func fontViewDidUpdate(_ childView: ChangeFontView, withFontName fontName: String)
+    func fontViewDidUpdate(withDesign fontDesign: UIFontDescriptor.SystemDesign)
 }
 
-class ChangeFontView: UIView {
+class ChangeFontView: SlidingContainer {
     
     weak var delegate: ChangeFontViewDelegate?
     
     var currentActiveFontButton: UIButton?
     
-    var systemFontButton = FontButton("System", font: nil)
-    var serifFontButton = FontButton("Serif", font: UIFont(name: FontTypes.Serif, size: 16))
-    var monoFontButton = FontButton("Mono", font: UIFont(name: FontTypes.Mono, size: 16))
-    var roundedFontButton = FontButton("Rounded", font: UIFont(name: FontTypes.Rounded, size: 16))
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
+    var systemFontButton = UIButton.createStyledTextButton(label: "System", design: .default)
+    var serifFontButton = UIButton.createStyledTextButton(label: "Serif", design: .serif)
+    var monoFontButton = UIButton.createStyledTextButton(label: "Mono", design: .monospaced)
+    var roundedFontButton = UIButton.createStyledTextButton(label: "Rounded", design: .rounded)
+    
+    @objc func changeFontToSystem(_ sender: UIButton) {
+        delegate?.fontViewDidUpdate(withDesign: .default)
+        setActiveFontDesign(active: .default)
     }
     
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
+    @objc func changeFontToSerif(_ sender: UIButton) {
+        delegate?.fontViewDidUpdate(withDesign: .serif)
+        setActiveFontDesign(active: .serif)
     }
     
-    @objc func systemFontTapped(_ sender: UIButton) {
-        delegate?.fontViewDidUpdate(self, withFontName: FontTypes.System)
-        setActiveSelectedFontButton(sender)
+    @objc func changeFontToMono(_ sender: UIButton) {
+        delegate?.fontViewDidUpdate(withDesign: .monospaced)
+        setActiveFontDesign(active: .monospaced)
     }
     
-    @objc func monoFontTapped(_ sender: UIButton) {
-        delegate?.fontViewDidUpdate(self, withFontName: FontTypes.Mono)
-        setActiveSelectedFontButton(sender)
+    @objc func changeFontToRounded(_ sender: UIButton) {
+        delegate?.fontViewDidUpdate(withDesign: .rounded)
+        setActiveFontDesign(active: .rounded)
     }
     
-    @objc func serifFontTapped(_ sender: UIButton) {
-        delegate?.fontViewDidUpdate(self, withFontName: FontTypes.Serif)
-        setActiveSelectedFontButton(sender)
+    override func setup() {
+        super.setup()
+        
+        systemFontButton.addTarget(self, action: #selector(changeFontToSystem), for: .touchUpInside)
+        serifFontButton.addTarget(self, action: #selector(changeFontToSerif), for: .touchUpInside)
+        monoFontButton.addTarget(self, action: #selector(changeFontToMono), for: .touchUpInside)
+        roundedFontButton.addTarget(self, action: #selector(changeFontToRounded), for: .touchUpInside)
+        
+        addSubview(systemFontButton)
+        addSubview(serifFontButton)
+        addSubview(monoFontButton)
+        addSubview(roundedFontButton)
     }
     
-    @objc func roundedFontTapped(_ sender: UIButton) {
-        delegate?.fontViewDidUpdate(self, withFontName: FontTypes.Rounded)
-        setActiveSelectedFontButton(sender)
-    }
-    
-    private func setup() {
-        self.translatesAutoresizingMaskIntoConstraints = false
-        
-        let horizontalStack = UIStackView.createStack(.horizontal)
-        let leftButtonStack = UIStackView.createStack(.vertical)
-        let rightButtonStack = UIStackView.createStack(.vertical)
-        
-        systemFontButton.addTarget(self, action: #selector(systemFontTapped), for: .touchUpInside)
-        serifFontButton.addTarget(self, action: #selector(serifFontTapped), for: .touchUpInside)
-        monoFontButton.addTarget(self, action: #selector(monoFontTapped), for: .touchUpInside)
-        roundedFontButton.addTarget(self, action: #selector(roundedFontTapped), for: .touchUpInside)
-        
-        leftButtonStack.addArrangedSubview(systemFontButton)
-        leftButtonStack.addArrangedSubview(serifFontButton)
-        
-        rightButtonStack.addArrangedSubview(monoFontButton)
-        rightButtonStack.addArrangedSubview(roundedFontButton)
-        
-        horizontalStack.addArrangedSubview(leftButtonStack)
-        horizontalStack.addArrangedSubview(rightButtonStack)
-        
-        self.addSubview(horizontalStack)
-        
-        NSLayoutConstraint.activate([
-            horizontalStack.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 0),
-            horizontalStack.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 0),
-            horizontalStack.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0),
-            horizontalStack.topAnchor.constraint(equalTo: self.topAnchor, constant: 0),
-        ])
-    }
-    
-    public func setActiveSelectedButton(active fontType: String) {
+    public func setActiveFontDesign(active fontType: UIFontDescriptor.SystemDesign) {
         switch fontType {
-        case FontTypes.System: setActiveSelectedFontButton(systemFontButton)
-        case FontTypes.Serif: setActiveSelectedFontButton(serifFontButton)
-        case FontTypes.Mono: setActiveSelectedFontButton(monoFontButton)
-        case FontTypes.Rounded: setActiveSelectedFontButton(roundedFontButton)
-        default: print("Unknown Font Type")
+        case .default: setActiveSelectedFontButton(systemFontButton)
+        case .monospaced: setActiveSelectedFontButton(monoFontButton)
+        case .rounded: setActiveSelectedFontButton(roundedFontButton)
+        case .serif: setActiveSelectedFontButton(serifFontButton)
+        default:
+            print("Unrecognized Font Style")
         }
     }
     
     private func setActiveSelectedFontButton(_ sender: UIButton) {
-        currentActiveFontButton?.backgroundColor = .gray.withAlphaComponent(0.1)
+        if currentActiveFontButton != sender {
+            sender.setSelected()
             
-        if currentActiveFontButton == sender {
-            currentActiveFontButton = nil
-        } else {
-            sender.backgroundColor = .purple.withAlphaComponent(0.1)
+            UIView.animate(withDuration: 0.1, animations: {
+                self.currentActiveFontButton?.setNotSelected()
+            })
             
             currentActiveFontButton = sender
         }
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        let width = (bounds.width - 36) / 2
+        let height = (bounds.height - 43) / 2
+        
+        systemFontButton.frame = CGRect(x: 12, y: 19, width: width, height: height)
+        serifFontButton.frame = CGRect(x: width + 24, y: 19, width: width, height: height)
+        monoFontButton.frame = CGRect(x: width + 24, y: height + 31, width: width, height: height)
+        roundedFontButton.frame = CGRect(x: 12, y: height + 31, width: width, height: height)
+        
+        systemFontButton.layer.cornerRadius = Constants.cornerRadiusInner
+        serifFontButton.layer.cornerRadius = Constants.cornerRadiusInner
+        monoFontButton.layer.cornerRadius = Constants.cornerRadiusInner
+        roundedFontButton.layer.cornerRadius = Constants.cornerRadiusInner
     }
 
 }

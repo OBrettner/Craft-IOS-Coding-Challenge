@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		21FDCD4F2E4345A0006B025D /* FontButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21FDCD4E2E4345A0006B025D /* FontButton.swift */; };
 		21FDCD532E434ED9006B025D /* ChangeColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21FDCD522E434ED9006B025D /* ChangeColorView.swift */; };
 /* End PBXBuildFile section */
 
@@ -32,7 +31,6 @@
 		21FDCCC82E3E0DE8006B025D /* CraftIOSCodingChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CraftIOSCodingChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		21FDCCDE2E3E0DEA006B025D /* CraftIOSCodingChallengeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CraftIOSCodingChallengeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		21FDCCE82E3E0DEA006B025D /* CraftIOSCodingChallengeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CraftIOSCodingChallengeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		21FDCD4E2E4345A0006B025D /* FontButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FontButton.swift; path = CraftIOSCodingChallenge/Views/FontButton.swift; sourceTree = "<group>"; };
 		21FDCD522E434ED9006B025D /* ChangeColorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChangeColorView.swift; path = CraftIOSCodingChallenge/Views/ChangeColorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -96,7 +94,6 @@
 			isa = PBXGroup;
 			children = (
 				21FDCD522E434ED9006B025D /* ChangeColorView.swift */,
-				21FDCD4E2E4345A0006B025D /* FontButton.swift */,
 				21FDCCCA2E3E0DE8006B025D /* CraftIOSCodingChallenge */,
 				21FDCCE12E3E0DEA006B025D /* CraftIOSCodingChallengeTests */,
 				21FDCCEB2E3E0DEA006B025D /* CraftIOSCodingChallengeUITests */,
@@ -258,7 +255,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				21FDCD4F2E4345A0006B025D /* FontButton.swift in Sources */,
 				21FDCD532E434ED9006B025D /* ChangeColorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

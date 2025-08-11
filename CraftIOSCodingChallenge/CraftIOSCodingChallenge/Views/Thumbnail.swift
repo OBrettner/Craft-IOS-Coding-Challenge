@@ -18,13 +18,13 @@ class ThumbnailView: UIView {
     
     let backgroundImageView = UIImageView()
     
-    var fontFamily: String = "" {
+    var fontDesign: UIFontDescriptor.SystemDesign = .default {
         didSet {
             setNeedsLayout()
         }
     }
     
-    var padding: CGFloat = 15.0 {
+    var padding: CGFloat = Constants.padding {
         didSet {
             setNeedsLayout()
         }
@@ -43,14 +43,13 @@ class ThumbnailView: UIView {
     private func setup() {
         self.contentMode = .scaleAspectFill
         self.clipsToBounds = true
-        self.layer.cornerRadius = 20
+        self.layer.cornerRadius = Constants.cornerRadiusOuther
         backgroundColor = .blue
         setupLabel()
     }
     
     private func setupLabel() {
         initialsLabel = UILabel()
-        initialsLabel.translatesAutoresizingMaskIntoConstraints = false
         initialsLabel.numberOfLines = 1
         initialsLabel.textAlignment = .center
         initialsLabel.adjustsFontSizeToFitWidth = false
@@ -59,23 +58,10 @@ class ThumbnailView: UIView {
         
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.clipsToBounds = true
-        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
         
         
         addSubview(initialsLabel)
         addSubview(backgroundImageView)
-        
-        NSLayoutConstraint.activate([
-            initialsLabel.topAnchor.constraint(equalTo: self.topAnchor),
-            initialsLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            initialsLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            initialsLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            
-            backgroundImageView.topAnchor.constraint(equalTo: self.topAnchor),
-            backgroundImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            backgroundImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            backgroundImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
-        ])
         
         self.sendSubviewToBack(backgroundImageView)
     }
@@ -91,6 +77,9 @@ class ThumbnailView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        
+        initialsLabel.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.height)
+        backgroundImageView.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.height)
         
         guard let text = initialsLabel.text, !text.isEmpty, bounds.width > 0, bounds.height > 0 else {
             initialsLabel.font = UIFont.systemFont(ofSize: 1.0)
@@ -116,7 +105,16 @@ class ThumbnailView: UIView {
                 break
             }
             
-            let font = UIFont(name: fontFamily, size: midPoint) ?? UIFont.systemFont(ofSize: midPoint)
+            var font = UIFont.systemFont(ofSize: midPoint)
+            
+            let baseFont = UIFont.systemFont(ofSize: midPoint, weight: .semibold)
+            if let fontDescriptor = baseFont.fontDescriptor.withDesign(fontDesign) {
+                let newFont = UIFont(descriptor: fontDescriptor, size: baseFont.pointSize)
+                font = newFont
+            } else {
+                font = baseFont
+            }
+            
             let attributes: [NSAttributedString.Key: Any] = [.font: font]
             
             let targetSize = CGSize(width: availableWidth, height: availableHeight)
@@ -136,6 +134,12 @@ class ThumbnailView: UIView {
         }
         
         let finalFontSize = lowerBound
-        initialsLabel.font = UIFont(name: fontFamily, size: finalFontSize) ?? UIFont.systemFont(ofSize: finalFontSize, weight: UIFont.Weight.medium)
+        let baseFont = UIFont.systemFont(ofSize: finalFontSize, weight: .semibold)
+        if let fontDescriptor = baseFont.fontDescriptor.withDesign(fontDesign) {
+            let newFont = UIFont(descriptor: fontDescriptor, size: baseFont.pointSize)
+            initialsLabel.font = newFont
+        } else {
+            initialsLabel.font = baseFont
+        }
     }
 }

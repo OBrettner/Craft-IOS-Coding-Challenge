@@ -1,10 +1,10 @@
 import UIKit
 
 protocol ChangeColorViewDelegate: AnyObject {
-    func colorViewDidUpdate(_ childView: ChangeColorView, withColor color: UIColor)
+    func colorViewDidUpdate(withColor color: UIColor)
 }
 
-class ChangeColorView: UIView {
+class ChangeColorView: SlidingContainer {
 
     var delegate: ChangeColorViewDelegate?
     
@@ -17,55 +17,42 @@ class ChangeColorView: UIView {
         .magenta
     ]
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
-    }
+    var buttons = [UIButton]()
     
     @objc func colorButtonTapped(_ sender: UIButton) {
-        delegate?.colorViewDidUpdate(self, withColor: sender.backgroundColor ?? .blue)
+        delegate?.colorViewDidUpdate(withColor: sender.backgroundColor ?? .blue)
     }
     
-    private func setup() {
-        self.translatesAutoresizingMaskIntoConstraints = false
+    override func setup() {
+        super.setup()
         
-        let horizontalStack = UIStackView()
-        horizontalStack.translatesAutoresizingMaskIntoConstraints = false
-        horizontalStack.spacing = 10
-        horizontalStack.axis = .horizontal
-        horizontalStack.alignment = .fill
-        horizontalStack.distribution = .fillEqually
-        horizontalStack.isUserInteractionEnabled = true
+        buttons.removeAll()
         
         for color in buttonColors {
-            let redButton = createColorButton(color)
-            horizontalStack.addArrangedSubview(redButton)
+            buttons.append(createColorButton(color))
+            addSubview(buttons.last!)
         }
-        
-        self.addSubview(horizontalStack)
-        
-        NSLayoutConstraint.activate([
-            horizontalStack.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 0),
-            horizontalStack.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 0),
-            horizontalStack.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0),
-            horizontalStack.topAnchor.constraint(equalTo: self.topAnchor, constant: 0),
-        ])
     }
     
     private func createColorButton(_ color: UIColor) -> UIButton {
         let button = UIButton()
         
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = color
-        button.layer.cornerRadius = 10
         button.addTarget(self, action: #selector(colorButtonTapped(_:)), for: .touchUpInside)
         
         return button
     }
-
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        let width = (bounds.width - ((Constants.padding / 2) * Double(buttons.count - 1) + Constants.padding * 2)) / Double(buttons.count)
+        var x = Constants.padding
+        for button in buttons {
+            button.frame = CGRect(x: x, y: Constants.padding, width: width, height: bounds.height - (Constants.padding * 2))
+            x += (Constants.padding / 2) + width
+            
+            button.layer.cornerRadius = Constants.cornerRadiusInner
+        }
+    }
 }

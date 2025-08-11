@@ -1,68 +1,41 @@
-//
-//  ChangeThumbnailImageView.swift
-//  CraftIOSCodingChallenge
-//
-//  Created by Oliver Brettmer on 2025. 08. 06..
-//
-
 import UIKit
 import Photos
 
 protocol ChangeThumbnailImageViewDelegate: AnyObject {
-    func presentAlert(_ childView: ChangeThumbnailImageView, viewControllerToPresent: UIViewController,
+    func presentAlert(viewControllerToPresent: UIViewController,
                       animated flag: Bool,
                       completion: (() -> Void)?)
     
-    func imageViewDidUpdate(_ childView: ChangeThumbnailImageView, with image: UIImage)
+    func imageViewDidUpdate(with image: UIImage)
 }
 
-class ChangeThumbnailImageView: UIView, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ChangeThumbnailImageView: SlidingContainer, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     var delegate: ChangeThumbnailImageViewDelegate?
     
     let cameraRollButton = UIButton.createImageButton(image: "camera", label: "Camera Rol", color: .darkGray)
     let photoLibraryButton = UIButton.createImageButton(image: "photo.on.rectangle.angled", label: "Photo Library", color: .darkGray)
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupLayout()
-        setupActions()
-    }
     
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupLayout()
-        setupActions()
-    }
-    
-    private func setupLayout() {
-        self.translatesAutoresizingMaskIntoConstraints = false
+    override func setup() {
+        super.setup()
         
-        let stackView = UIStackView.createStack(.horizontal)
+        addSubview(cameraRollButton)
+        addSubview(photoLibraryButton)
         
-        cameraRollButton.translatesAutoresizingMaskIntoConstraints = false
-        photoLibraryButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        stackView.addArrangedSubview(cameraRollButton)
-        stackView.addArrangedSubview(photoLibraryButton)
-        
-        self.addSubview(stackView)
-        
-        NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 0),
-            stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 0),
-            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 0),
-            stackView.bottomAnchor.constraint(lessThanOrEqualTo: self.bottomAnchor, constant: 0),
-            
-            cameraRollButton.heightAnchor.constraint(equalTo: stackView.heightAnchor, constant: 0),
-            
-            photoLibraryButton.heightAnchor.constraint(equalTo: stackView.heightAnchor, constant: 0),
-            
-        ])
-    }
-    
-    private func setupActions() {
         photoLibraryButton.addTarget(self, action: #selector(selectImageButtonTapped), for: .touchUpInside)
         cameraRollButton.addTarget(self, action: #selector(cameraButtonTapped), for: .touchUpInside)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        let width = (bounds.width - (2 * Constants.padding + Constants.padding / 2)) / 2
+        let height = bounds.height - Constants.padding * 2
+        
+        cameraRollButton.frame = CGRect(x: Constants.padding, y: Constants.padding, width: width, height: height)
+        photoLibraryButton.frame = CGRect(x: width + Constants.padding * 1.5, y: Constants.padding, width: width, height:  height)
+        
+        cameraRollButton.layer.cornerRadius = Constants.cornerRadiusInner
+        photoLibraryButton.layer.cornerRadius = Constants.cornerRadiusInner
     }
     
     @objc private func selectImageButtonTapped() {
@@ -109,7 +82,7 @@ class ChangeThumbnailImageView: UIView, UIImagePickerControllerDelegate, UINavig
         imagePicker.sourceType = .camera
         imagePicker.allowsEditing = false
         
-        delegate?.presentAlert(self, viewControllerToPresent: imagePicker, animated: true, completion: nil)
+        delegate?.presentAlert(viewControllerToPresent: imagePicker, animated: true, completion: nil)
     }
     
     private func presentImagePicker() {
@@ -118,7 +91,7 @@ class ChangeThumbnailImageView: UIView, UIImagePickerControllerDelegate, UINavig
         imagePicker.sourceType = .photoLibrary
         imagePicker.allowsEditing = false
         
-        delegate?.presentAlert(self, viewControllerToPresent: imagePicker, animated: true, completion: nil)
+        delegate?.presentAlert(viewControllerToPresent: imagePicker, animated: true, completion: nil)
     }
     
     private func showNoCameraAlert() {
@@ -128,7 +101,7 @@ class ChangeThumbnailImageView: UIView, UIImagePickerControllerDelegate, UINavig
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        delegate?.presentAlert(self, viewControllerToPresent: alert, animated: true, completion: nil)
+        delegate?.presentAlert(viewControllerToPresent: alert, animated: true, completion: nil)
     }
     
     private func showPermissionAlert() {
@@ -144,7 +117,7 @@ class ChangeThumbnailImageView: UIView, UIImagePickerControllerDelegate, UINavig
                 UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
             }
         }))
-        delegate?.presentAlert(self, viewControllerToPresent: alert, animated: true, completion: nil)
+        delegate?.presentAlert(viewControllerToPresent: alert, animated: true, completion: nil)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -152,7 +125,7 @@ class ChangeThumbnailImageView: UIView, UIImagePickerControllerDelegate, UINavig
             guard let self = self else { return }
             
             if let takenPicture = info[.originalImage] as? UIImage {
-                delegate?.imageViewDidUpdate(self, with: takenPicture)
+                delegate?.imageViewDidUpdate(with: takenPicture)
             }
         }
     }
