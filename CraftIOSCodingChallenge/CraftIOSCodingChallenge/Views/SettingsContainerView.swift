@@ -18,12 +18,12 @@ class SettingsContainerView: ContainerWithShadow {
     var isImageSet = false {
         didSet {
             reflectImageState()
-            view.setNeedsLayout()
+            setNeedsLayout()
         }
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func setup() {
+        super.setup()
         
         let openFontEditingPanel = UITapGestureRecognizer(target: self, action: #selector(openFontEditingPanel))
         editFontButton.addGestureRecognizer(openFontEditingPanel)
@@ -73,17 +73,17 @@ class SettingsContainerView: ContainerWithShadow {
         delegate?.removeBackgroundImageRequested()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func layoutSubviews() {
+        super.layoutSubviews()
         
-        let height = view.bounds.height - 24
+        let height = bounds.height - 24
         
         if(isImageSet) {
-            let width = (view.bounds.width - (12 * 3)) / 2
+            let width = (bounds.width - (12 * 3)) / 2
             editImageButton.frame = CGRect(x: 12, y: 12, width: width, height: height)
             removeImageButton.frame = CGRect(x: (12*2) + width, y: 12, width: width, height: height)
         } else {
-            let width = (view.bounds.width - (12 * 4)) / 3
+            let width = (bounds.width - (12 * 4)) / 3
             editFontButton.frame = CGRect(x: 12, y: 12, width: width, height: height)
             editBackgroundButton.frame = CGRect(x: (12*2) + width, y: 12, width: width, height: height)
             editImageButton.frame = CGRect(x: (12*3) + (width*2), y: 12, width: width, height: height)

@@ -12,9 +12,11 @@ class ThumbnailSettingsView: UIViewController {
     
     var closeListenerView = UIView()
     var closeButton = UIButton()
-    var currentColor = UIColor.blue
-    var currentFontDesign = UIFontDescriptor.SystemDesign.default
     var settingsViewContainer = SettingsContainerView()
+    
+    var changeFontView = ChangeFontView()
+    var changeColorView = ChangeColorView()
+    var changeImageView = ChangeThumbnailImageView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,9 +32,28 @@ class ThumbnailSettingsView: UIViewController {
         
         view.addSubview(closeListenerView)
         view.addSubview(closeButton)
-        view.addSubview(settingsViewContainer.view)
+        view.addSubview(settingsViewContainer)
+        view.addSubview(changeFontView)
+        view.addSubview(changeColorView)
+        view.addSubview(changeImageView)
         
-        addChild(settingsViewContainer)
+        let fontGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSettingsEditingFinished))
+        fontGestureRecognizer.direction = .down
+        changeFontView.addGestureRecognizer(fontGestureRecognizer)
+        changeFontView.isHidden = true
+        changeFontView.delegate = self
+        
+        let backgroundGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSettingsEditingFinished))
+        backgroundGestureRecognizer.direction = .down
+        changeColorView.addGestureRecognizer(backgroundGestureRecognizer)
+        changeColorView.isHidden = true
+        changeColorView.delegate = self
+        
+        let imageGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSettingsEditingFinished))
+        imageGestureRecognizer.direction = .down
+        changeImageView.addGestureRecognizer(imageGestureRecognizer)
+        changeImageView.isHidden = true
+        changeImageView.delegate = self
         
         view.sendSubviewToBack(closeListenerView)
     }
@@ -43,17 +64,18 @@ class ThumbnailSettingsView: UIViewController {
         button.setTitle("Done", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        
         button.addTarget(self, action: #selector(closeSubviewrequested), for: .touchUpInside)
                 
         return button
     }
     
     func setActiveFontDesign(fontDesign: UIFontDescriptor.SystemDesign) {
-        currentFontDesign = fontDesign
+        changeFontView.setActiveFontDesign(active: fontDesign)
     }
     
     func setActiveColor(color: UIColor) {
-        currentColor = color
+        changeColorView.setColor(color: color)
     }
     
     func setImageStateActive(active: Bool) {
@@ -68,8 +90,12 @@ class ThumbnailSettingsView: UIViewController {
         closeButton.frame = CGRect(x: view.bounds.width - closeButton.bounds.width - Constants.sidePadding, y: 60, width: 70, height: 35)
         closeButton.layer.cornerRadius = closeButton.frame.height / 2
         
-        settingsViewContainer.view.frame = getContainerCGRect()
-        settingsViewContainer.view.layer.cornerRadius = Constants.cornerRadiusOuther
+        settingsViewContainer.frame = getContainerCGRect()
+        settingsViewContainer.layer.cornerRadius = Constants.cornerRadiusOuther
+        
+        changeFontView.frame = getSettingsEditorRect(height: 140)
+        changeColorView.frame = getSettingsEditorRect(height: 140)
+        changeImageView.frame = getSettingsEditorRect(height: 140)
     }
     
     func getContainerCGRect() -> CGRect {
@@ -91,12 +117,17 @@ class ThumbnailSettingsView: UIViewController {
     
     @objc func closeSubviewrequested() {
         delegate?.closeSettingsView()
-        dismiss(animated: true)
+        
+        Animations.fadeOut(view: changeFontView)
+        Animations.fadeOut(view: changeColorView)
+        Animations.fadeOut(view: changeImageView)
     }
     
     @IBAction func handleSettingsEditingFinished(_ gestureRecognizer : UISwipeGestureRecognizer) {
         if gestureRecognizer.state == .ended {
-            dismiss(animated: true)
+            Animations.fadeOut(view: changeFontView)
+            Animations.fadeOut(view: changeColorView)
+            Animations.fadeOut(view: changeImageView)
         }
     }
 }
@@ -108,23 +139,15 @@ extension ThumbnailSettingsView: SettingsContainerViewDelegate {
     }
 
     func openFontEditRequested() {
-        let changeFont = ChangeFontView()
-        changeFont.delegate = self
-        changeFont.setActiveFontDesign(active: currentFontDesign)
-        self.present(changeFont, animated: true)
+        Animations.animateIn(view: changeFontView)
     }
     
     func openBackgroundEditRequested() {
-        let changeColor = ChangeColorView()
-        changeColor.delegate = self
-        changeColor.setColor(color: self.currentColor)
-        self.present(changeColor, animated: true)
+        Animations.animateIn(view: changeColorView)
     }
     
     func openImageEditRequested() {
-        let changeImage = ChangeThumbnailImageView()
-        changeImage.delegate = self
-        self.present(changeImage, animated: true)
+        Animations.animateIn(view: changeImageView)
     }
 }
 
@@ -141,8 +164,13 @@ extension ThumbnailSettingsView: ChangeColorViewDelegate {
 }
 
 extension ThumbnailSettingsView: ChangeThumbnailImageViewDelegate {
+    func presentAlert(viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)?) {
+        present(viewControllerToPresent, animated: flag, completion: completion)
+    }
+
     func imageViewDidUpdate(with image: UIImage) {
         delegate?.imageViewDidUpdate(with: image)
         settingsViewContainer.isImageSet = true
+        Animations.fadeOut(view: changeImageView)
     }
 }

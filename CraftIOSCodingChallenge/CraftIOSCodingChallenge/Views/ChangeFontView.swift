@@ -35,8 +35,8 @@ class ChangeFontView: SlidingContainer {
         setActiveFontDesign(active: .rounded)
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func setup() {
+        super.setup()
         
         systemFontButton.addTarget(self, action: #selector(changeFontToSystem), for: .touchUpInside)
         serifFontButton.addTarget(self, action: #selector(changeFontToSerif), for: .touchUpInside)
@@ -72,11 +72,11 @@ class ChangeFontView: SlidingContainer {
         }
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func layoutSubviews() {
+        super.layoutSubviews()
         
-        let width = (view.bounds.width - 36) / 2
-        let height = (view.bounds.height - 43) / 2
+        let width = (bounds.width - 36) / 2
+        let height = (bounds.height - 43) / 2
         
         systemFontButton.frame = CGRect(x: 12, y: 19, width: width, height: height)
         serifFontButton.frame = CGRect(x: width + 24, y: 19, width: width, height: height)
