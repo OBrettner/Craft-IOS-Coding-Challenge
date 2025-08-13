@@ -2,21 +2,17 @@ import UIKit
 import Photos
 
 protocol ChangeThumbnailImageViewDelegate: AnyObject {
-    func presentAlert(viewControllerToPresent: UIViewController,
-                      animated flag: Bool,
-                      completion: (() -> Void)?)
-    
     func imageViewDidUpdate(with image: UIImage)
 }
 
 class ChangeThumbnailImageView: SlidingContainer, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    var delegate: ChangeThumbnailImageViewDelegate?
+    weak var delegate: ChangeThumbnailImageViewDelegate?
     
     let cameraRollButton = UIButton.createImageButton(image: "camera", label: "Camera Rol", color: .darkGray)
     let photoLibraryButton = UIButton.createImageButton(image: "photo.on.rectangle.angled", label: "Photo Library", color: .darkGray)
     
-    override func setup() {
-        super.setup()
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
         addSubview(cameraRollButton)
         addSubview(photoLibraryButton)
@@ -25,11 +21,11 @@ class ChangeThumbnailImageView: SlidingContainer, UIImagePickerControllerDelegat
         cameraRollButton.addTarget(self, action: #selector(cameraButtonTapped), for: .touchUpInside)
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         
-        let width = (bounds.width - (2 * Constants.padding + Constants.padding / 2)) / 2
-        let height = bounds.height - Constants.padding * 2
+        let width = (view.bounds.width - (2 * Constants.padding + Constants.padding / 2)) / 2
+        let height = view.bounds.height - Constants.padding * 2
         
         cameraRollButton.frame = CGRect(x: Constants.padding, y: Constants.padding, width: width, height: height)
         photoLibraryButton.frame = CGRect(x: width + Constants.padding * 1.5, y: Constants.padding, width: width, height:  height)
@@ -82,7 +78,7 @@ class ChangeThumbnailImageView: SlidingContainer, UIImagePickerControllerDelegat
         imagePicker.sourceType = .camera
         imagePicker.allowsEditing = false
         
-        delegate?.presentAlert(viewControllerToPresent: imagePicker, animated: true, completion: nil)
+        present(imagePicker, animated: true, completion: nil)
     }
     
     private func presentImagePicker() {
@@ -91,7 +87,7 @@ class ChangeThumbnailImageView: SlidingContainer, UIImagePickerControllerDelegat
         imagePicker.sourceType = .photoLibrary
         imagePicker.allowsEditing = false
         
-        delegate?.presentAlert(viewControllerToPresent: imagePicker, animated: true, completion: nil)
+        present(imagePicker, animated: true, completion: nil)
     }
     
     private func showNoCameraAlert() {
@@ -101,7 +97,7 @@ class ChangeThumbnailImageView: SlidingContainer, UIImagePickerControllerDelegat
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        delegate?.presentAlert(viewControllerToPresent: alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
     
     private func showPermissionAlert() {
@@ -117,7 +113,7 @@ class ChangeThumbnailImageView: SlidingContainer, UIImagePickerControllerDelegat
                 UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
             }
         }))
-        delegate?.presentAlert(viewControllerToPresent: alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -125,7 +121,8 @@ class ChangeThumbnailImageView: SlidingContainer, UIImagePickerControllerDelegat
             guard let self = self else { return }
             
             if let takenPicture = info[.originalImage] as? UIImage {
-                delegate?.imageViewDidUpdate(with: takenPicture)
+                self.delegate?.imageViewDidUpdate(with: takenPicture)
+                dismiss(animated: true)
             }
         }
     }

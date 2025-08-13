@@ -20,8 +20,8 @@ class ChangeColorView: SlidingContainer {
     
     let colorWell = UIColorWell()
     
-    override func setup() {
-        super.setup()
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
         buttons.removeAll()
         
@@ -51,19 +51,19 @@ class ChangeColorView: SlidingContainer {
         return button
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         
-        let width = (bounds.width - ((Constants.padding / 2) * Double(buttons.count - 1) + Constants.padding * 2)) / Double(buttons.count + 1)
+        let width = (view.bounds.width - ((Constants.padding / 2) * Double(buttons.count - 1) + Constants.padding * 2)) / Double(buttons.count + 1)
         var x = Constants.padding
         for button in buttons {
-            button.frame = CGRect(x: x, y: Constants.padding, width: width, height: bounds.height - (Constants.padding * 2))
+            button.frame = CGRect(x: x, y: Constants.padding, width: width, height: view.bounds.height - (Constants.padding * 2))
             x += (Constants.padding / 2) + width
             
             button.layer.cornerRadius = Constants.cornerRadiusInner
         }
         
-        colorWell.frame = CGRect(x: x, y: Constants.padding, width: width, height: bounds.height - (Constants.padding * 2))
+        colorWell.frame = CGRect(x: x, y: Constants.padding, width: width, height: view.bounds.height - (Constants.padding * 2))
         x += (Constants.padding / 2) + width
     }
     
