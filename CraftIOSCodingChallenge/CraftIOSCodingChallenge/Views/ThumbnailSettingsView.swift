@@ -14,6 +14,8 @@ class ThumbnailSettingsView: UIViewController {
     var closeButton = UIButton()
     var settingsViewContainer = SettingsContainerView()
     
+    private var initialCenter = CGPoint()
+    
     var changeFontView = ChangeFontView()
     var changeColorView = ChangeColorView()
     var changeImageView = ChangeThumbnailImageView()
@@ -37,20 +39,17 @@ class ThumbnailSettingsView: UIViewController {
         view.addSubview(changeColorView)
         view.addSubview(changeImageView)
         
-        let fontGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSettingsEditingFinished))
-        fontGestureRecognizer.direction = .down
+        let fontGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleFontPanned))
         changeFontView.addGestureRecognizer(fontGestureRecognizer)
         changeFontView.isHidden = true
         changeFontView.delegate = self
         
-        let backgroundGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSettingsEditingFinished))
-        backgroundGestureRecognizer.direction = .down
+        let backgroundGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleColorPanned))
         changeColorView.addGestureRecognizer(backgroundGestureRecognizer)
         changeColorView.isHidden = true
         changeColorView.delegate = self
         
-        let imageGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSettingsEditingFinished))
-        imageGestureRecognizer.direction = .down
+        let imageGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleImagePanned))
         changeImageView.addGestureRecognizer(imageGestureRecognizer)
         changeImageView.isHidden = true
         changeImageView.delegate = self
@@ -123,11 +122,63 @@ class ThumbnailSettingsView: UIViewController {
         Animations.fadeOut(view: changeImageView)
     }
     
-    @IBAction func handleSettingsEditingFinished(_ gestureRecognizer : UISwipeGestureRecognizer) {
-        if gestureRecognizer.state == .ended {
-            Animations.fadeOut(view: changeFontView)
-            Animations.fadeOut(view: changeColorView)
-            Animations.fadeOut(view: changeImageView)
+    @objc func handleFontPanned(_ gesture: UIPanGestureRecognizer) {
+        handlePanGestureForView(gesture, view: changeFontView)
+    }
+    
+    @objc func handleColorPanned(_ gesture: UIPanGestureRecognizer) {
+        handlePanGestureForView(gesture, view: changeColorView)
+    }
+    
+    @objc func handleImagePanned(_ gesture: UIPanGestureRecognizer) {
+        handlePanGestureForView(gesture, view: changeImageView)
+    }
+    
+    func handlePanGestureForView(_ gesture: UIPanGestureRecognizer, view: UIView) {
+        let translation = gesture.translation(in: view)
+
+        switch gesture.state {
+        case .began:
+            initialCenter = view.center
+            
+        case .changed:
+            var newCenterY = CGFloat()
+            var alpha = CGFloat()
+            let maxDismissalDistance: CGFloat = 100
+            let percentageDragged = min(1, abs(translation.y) / maxDismissalDistance)
+            if translation.y > 0{
+                newCenterY = initialCenter.y + translation.y
+                alpha = 1 - percentageDragged
+                
+            } else {
+                newCenterY = initialCenter.y + (translation.y * (percentageDragged/3))
+                alpha = 1
+            }
+            
+            view.center = CGPoint(x: initialCenter.x, y: newCenterY)
+            
+            view.alpha = alpha
+            
+        case .ended:
+            let velocity = gesture.velocity(in: view)
+            let shouldDismiss = velocity.y > 1000 || translation.y > 50
+            
+            if shouldDismiss {
+                UIView.animate(withDuration: 0.1, animations: {
+                    view.center.y = self.view.frame.height
+                    view.alpha = 0
+                }) { _ in
+                    view.isHidden = true
+                }
+            } else {
+                UIView.animate(withDuration: 0.1) {
+                    view.center = self.initialCenter
+                    view.alpha = 1
+                }
+            }
+            
+        default:
+            break
         }
     }
 }
