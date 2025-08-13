@@ -74,6 +74,10 @@ class ThumbnailSettingsView: UIViewController {
         changeFontView.setActiveFontDesign(active: fontDesign)
     }
     
+    func setActiveColor(color: UIColor) {
+        changeColorView.setColor(color: color)
+    }
+    
     func setImageStateActive(active: Bool) {
         settingsViewContainer.isImageSet = active
     }

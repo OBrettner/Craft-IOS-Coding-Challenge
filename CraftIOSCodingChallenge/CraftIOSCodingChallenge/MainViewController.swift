@@ -36,6 +36,7 @@ class MainViewController: UIViewController {
         
         settingsView.setActiveFontDesign(fontDesign: thumbnail.codableData.fontDesign)
         settingsView.setImageStateActive(active: thumbnail.codableData.hasImage)
+        settingsView.setActiveColor(color: thumbnail.codableData.backgroundColor.uiColor)
         
         settingsView.view.isHidden = true
         settingsView.delegate = self
