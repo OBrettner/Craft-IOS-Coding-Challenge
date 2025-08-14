@@ -156,7 +156,6 @@ class ThumbnailSettingsView: UIViewController {
             }
             
             view.center = CGPoint(x: initialCenter.x, y: newCenterY)
-            
             view.alpha = alpha
             
         case .ended:
